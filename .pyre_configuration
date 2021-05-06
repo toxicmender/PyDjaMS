@@ -1,0 +1,8 @@
+{
+  "source_directories": [
+    "src"
+  ],
+  "taint_models_path": "./taint",
+  "strict": true
+
+}

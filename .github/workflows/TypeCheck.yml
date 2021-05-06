@@ -1,0 +1,78 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Pyre & Pysa Check
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.8, pypy3]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Set up a specific version of Python and add the command-line tools to the PATH
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          # Version range or exact version of a Python version to use, using SemVer's version range syntax.
+          python-version: ${{ matrix.python-version }} # optional, default is 3.x
+          # The target architecture (x86, x64) of the Python interpreter.
+          architecture: x64 # optional
+          # Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
+          token: ${{ github.token }} # optional, default is ${{ github.token }}
+
+      # Runs a set of commands using the runners shell
+      - name: Install Python modules
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyre-check isort autopep8
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Runs a set of commands using the runners shell
+      - name: Run Python formatting modules/tools
+        run: |
+          cd src/
+          isort .
+          autopep8 --in-place --recursive --max-line-length 80 --aggressive .
+
+      # Runs a set of commands using the runners shell
+      - name: Run Pyre configurator
+        run: |
+          echo "./" | pyre init
+          wget https://gist.githubusercontent.com/toxicmender/67e5c02a9fef3240e1ea326013f8a8ac/raw/16d28ea5bab41dada8399f968a6ac5790982fc0e/pyre_reconfig.py
+          python pyre_reconfig.py
+          cat .pyre_configuration
+
+      # Runs a single command using the runners shell
+      - name: Run Pyre type checker
+        run: pyre --noninteractive --output text check > pyre.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pyre-report
+          path: pyre.txt
+          if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
+
+      # Runs a single command using the runners shell
+      - name: Run Pysa data flow check
+        run: pyre --noninteractive --output text analyze > pysa.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pysa-report
+          path: pysa.txt
+          if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`
