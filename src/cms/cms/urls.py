@@ -16,7 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = [
+# For Type checking
+from django.urls.resolvers import URLResolver
+import typing
+
+urlpatterns: typing.List[URLResolver] = [
     path('polls/', include('polls.urls')),
     path('admin/', admin.site.urls),
 ]
