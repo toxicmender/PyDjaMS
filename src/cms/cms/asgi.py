@@ -11,6 +11,9 @@ import os
 
 from django.core.asgi import get_asgi_application
 
+# Only for type checking
+from django.core.handlers.asgi import ASGIHandler
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cms.settings')
 
-application = get_asgi_application()
+application: ASGIHandler = get_asgi_application()
