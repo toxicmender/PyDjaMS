@@ -28,7 +28,7 @@ jobs:
 
       # Set up a specific version of Python and add the command-line tools to the PATH
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2.2.2
+        uses: actions/setup-python@v3.1.0
         with:
           # Version range or exact version of a Python version to use, using SemVer's version range syntax.
           python-version: ${{ matrix.python-version }} # optional, default is 3.x
