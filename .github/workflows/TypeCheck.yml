@@ -62,7 +62,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run Pyre type checker
         run: pyre --noninteractive --output text check > pyre.txt
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: pyre-report
           path: pyre.txt
@@ -71,7 +71,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run Pysa data flow check
         run: pyre --noninteractive --output text analyze > pysa.txt
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: pysa-report
           path: pysa.txt
